@@ -8,7 +8,9 @@ A full pipeline for least suare inference for proteomic data with missingness is
 
 This pipeline can be applied directly on a custom data set (the default is a simulated toy example), provided that it suits the format as follows:
 
-- `X.na`: confounders. A data.frame of size `#observations x #covariates`. With or without missing values.
-- `W`: treatment assignment. A binary vector coded either with `{0,1}` or with `{FALSE,TRUE}` (representing `{control,treatment}`). Without missing values.
-- `Y`: observed outcome. A numerical or binary vector (if binary, then coded with `{0,1}`). Without missing values.
+- `raw.pep`: A high dimensional peptide data with missingness. A matrix `#observations x #peptides`. 
+- `W`: A low-dimensional covariate without missingness `#observations x #covariates`. 
 
+## Package Dependency
+
+The proposed method uses a variant of VAE models called VAEIT (Du et al., 2022) to fit the outcomes. The dependencies can be installed via the following commands:
