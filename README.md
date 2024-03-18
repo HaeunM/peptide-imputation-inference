@@ -6,10 +6,12 @@ This repository contains codes and pipelines associated with the article [AUGMEN
 
 A full pipeline for least suare inference for proteomic data with missingness is provided in [`pipeline_peptide_post_imputation_inference.Rmd`].
 
-This pipeline can be applied directly on a custom data set (the default is a simulated toy example), provided that it suits the format as follows:
+This pipeline can be applied to a custom dataset, provided that it conforms to the following format:
 
-- `raw.pep`: A high dimensional peptide data with missingness. A matrix `#observations x #peptides`. 
-- `W`: A low-dimensional covariate without missingness `#observations x #covariates`. 
+- `raw.pep`: high-dimensional peptide data outcome with missing values. (A matrix #observations x #peptides)
+- `covariate`: A low-dimensional covariate without missing values. (A data frame #observations x #covariates)
+- `missing_pattern`: An assumed missing pattern of `raw.pep`. Either `MAR` or `MCAR`.
+
 
 ## Package Dependency
 
