@@ -13,6 +13,11 @@ This pipeline can be applied to a custom dataset, provided that it conforms to t
 - `missing_pattern`: A missing pattern of `raw.pep`. Either `MAR` or `MCAR`.
 
 
+# VAEIT 
+
 ## Package Dependency
 
-The proposed method uses a variant of VAE models called VAEIT (Du et al., 2022) to fit the outcomes. The dependencies can be installed via the following commands:
+The proposed method uses a variant of VAE models called VAEIT (Du et al., 2022). The dependencies can be installed via the following commands:
+
+
+
