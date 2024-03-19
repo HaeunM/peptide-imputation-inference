@@ -1,0 +1,217 @@
+---
+title: "scpdata_main_analysis"
+output: html_document
+date: "2024-03-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache= FALSE)
+```
+
+
+```{r load_libraries, results='hide', message=F, warning=F}
+#library(BiocManager)
+#BiocManager::install(version = "3.18")
+#BiocManager::install("scpdata",type = "source")
+#BiocManager::install("scp",type = "source")
+
+require(data.table)
+library(scpdata)
+library(scp)
+library(ggplot2)
+library(dplyr)
+require(sandwich)
+library(tidyr)
+library(tidyverse)
+
+
+source("R_wrapper_VAE.R")
+```
+
+
+```{r load_data, results='hide', message=F, warning=F}
+scp <-leduc2022_pSCoPE()
+annote=colData(leduc2022_pSCoPE())
+supple=read.csv("SuppData_4 - Meta_pSCoPE.csv", header=TRUE)
+
+meta=data.frame(rownames=rownames(annote), 
+                set=annote$Set, 
+                channel=annote$Channel,
+                batch=annote$lcbatch,
+                digest=as.numeric(annote$digest),
+                type=as.factor(annote$SampleType),
+                diameter=supple$diameter,
+                elongation=supple$elongation)%>%
+            na.omit()
+
+```
+
+
+```{r, data_preprocessing}
+x.peptide=t(assay(scp[["peptides_log"]]))
+x.peptide.observed=apply(x.peptide, MARGIN = 2, FUN = function(x) length(x[!is.na(x)]) )/nrow(x.peptide)
+x.peptide1=x.peptide[,which(x.peptide.observed>0.2)]
+x.peptide1.observed=apply(x.peptide1, MARGIN = 2, FUN = function(x) length(x[!is.na(x)]) )/nrow(x.peptide)
+```
+
+
+```{r, run simulation}
+n.rep=200
+record_signal=list(); record_pval=list(); record_beta=list(); 
+
+for(i.rep in 1:n.rep){
+  
+  print(paste("repetition :: ",i.rep)); flush.console()
+  
+  data=data.frame(x.peptide1,rownames=rownames(x.peptide1))
+  data=inner_join(meta, data,  by="rownames")
+  covariate=data%>%dplyr::select(type, digest,diameter,elongation)
+  covariate=covariate%>%
+    mutate(type=sample(type, nrow(covariate)))
+  raw.pep1=data[,c((ncol(meta)+1):(ncol(meta)+ncol(x.peptide1)))]
+  
+  case=which(covariate$type==1); control=which(covariate$type==0)
+  
+  p=length(which(x.peptide1.observed>0.7))
+  ind=which(x.peptide1.observed>0.7)
+  true.peptide=sample(p,p*0.1); signal=rnorm(length(true.peptide), 0.2, 0.05)
+  raw.pep1[case,ind[true.peptide]]=raw.pep1[case,ind[true.peptide]]+t(replicate(length(case),signal))  
+  
+  batches_cate=matrix(covariate$type,ncol=1,byrow=F) 
+  batches_cont=matrix(c(covariate$digest,covariate$diameter,covariate$elongation),ncol=3,byrow=F) 
+  
+  data <-raw.pep1; data[is.na(data)] <- 0.;
+  mask <- - as.matrix(is.na(as.matrix(raw.pep1)))
+  vae.impute1<-vae(data,mask,batches_cate,batches_cont, NULL, dist_block=list('Gaussian'),
+                   c(dim(data)[2]), num_epoch=300L, verbose=FALSE)[[1]]
+  
+  raw.pep=raw.pep1[,which(x.peptide1.observed>0.7)]
+  vae.impute=vae.impute1[,which(x.peptide1.observed>0.7)]
+  p=ncol(raw.pep); n=nrow(raw.pep)
+  
+  low.impute=matrix(0, n,p)
+  
+  for(i.p in 1:p){
+    lowmodel=lm(raw.pep[,i.p]~diameter+type+elongation+digest, data=covariate)
+    low.impute[,i.p]=c(predict(lowmodel, newdata=covariate))
+  }
+  
+  fitd=raw.pep
+  
+  for(i.p in 1:p){
+    mask=1-is.na(raw.pep[,i.p])
+    logit=glm(mask~. ,data=covariate, family = "binomial")
+    fitd[,i.p]<-as.vector(logit$fitted.values)
+  }
+  AG=(raw.pep-low.impute); AG[which(is.na(AG),arr.ind = T)]=0
+  low.pep=low.impute+AG/fitd; 
+  
+  AG=(raw.pep-vae.impute); AG[which(is.na(AG),arr.ind = T)]=0
+  DR.pep=vae.impute+AG/fitd; 
+  
+  pval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+  tval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+  beta=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+  qval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+  
+  for(i.p in 1:p){
+    
+    fit=lm(raw.pep[,i.p]~type+diameter+elongation+digest, data=covariate)
+    pval$com[i.p]=coef(summary(fit))[2,4] 
+    tval$com[i.p]=coef(summary(fit))[2,3] 
+    beta$com[i.p]=coef(summary(fit))[2,1] 
+    
+    fit=lm(DR.pep[,i.p]~type+diameter+elongation+digest, data=covariate)
+    beta$DR_UW[i.p]=coef(summary(fit))[2,1] 
+    tval$DR_UW[i.p]=beta$DR_UW[i.p]/sqrt(vcovHC(fit)[2,2])
+    pval$DR_UW[i.p]=2*pt(abs(tval$DR_UW)[i.p], n-1, lower.tail=FALSE) 
+    
+    fit=lm(low.pep[,i.p]~type+diameter+elongation+digest, data=covariate)
+    beta$DR_W[i.p]=coef(summary(fit))[2,1] 
+    tval$DR_W[i.p]=beta$DR_W[i.p]/sqrt(vcovHC(fit)[2,2])
+    pval$DR_W[i.p]=2*pt(abs(tval$DR_W)[i.p], n-1, lower.tail=FALSE) 
+    
+    
+    fit=lm(vae.impute[,i.p]~type+diameter+elongation+digest, data=covariate)
+    pval$plugin[i.p]=coef(summary(fit))[2,4] 
+    tval$plugin[i.p]=coef(summary(fit))[2,3] 
+    beta$plugin[i.p]=coef(summary(fit))[2,1] 
+    
+  }
+  
+  record_signal[[i.rep]]=unlist(true.peptide)
+  record_pval[[i.rep]]=pval
+  record_beta[[i.rep]]=beta
+  
+}
+
+result=list(record_signal,record_pval, record_beta )
+ 
+```
+
+
+```{r, print_results}
+
+load("result_null_signal_setting2.Rdata")
+tFDR.set=c(0.01,0.05, 0.3)
+p=length(result[[2]][[1]]$com); n.rep=length(result[[2]])
+
+pval=data.frame(Complete=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), Plugin=rep(0,p))
+power=data.frame(Complete=rep(0,n.rep*3), DR_W=rep(0,n.rep*3), DR_UW=rep(0,n.rep*3), Plugin=rep(0,n.rep*3), 
+                 tFDR=c(rep(tFDR.set[1], n.rep),rep(tFDR.set[2], n.rep),rep(tFDR.set[3], n.rep)))
+FDR=power
+
+for (i.FDR in 1:length(tFDR.set)){
+  tFDR=tFDR.set[i.FDR]
+  
+  record_signal=result[[1]]; record_pval=result[[2]];record_beta=result[[3]]
+  
+  for(i.rep in 1:n.rep){
+    
+    pval=record_pval[[i.rep]]; true.peptide=record_signal[[i.rep]]; 
+    pval=data.frame(com=pval$com, DR_W=pval$DR_W, DR_UW=pval$DR_UW, Plugin=pval$plugin)
+    qval=matrix(0, nrow=nrow(pval), ncol=4)
+    
+    for(j in 1:4){
+      qval[,j]=p.adjust(pval[,j], method = "BH")
+    }
+    
+    for(j in 1:4){
+      power[(i.FDR-1)*n.rep+i.rep,j]=length(intersect(which(qval[,j]<tFDR),true.peptide))/length(true.peptide)
+      FDR[(i.FDR-1)*n.rep+i.rep,j]=length(setdiff(which(qval[,j]<tFDR),true.peptide))/length(which(qval[,j]<tFDR))
+    }
+  }
+}
+
+power2=gather(power, value=power, key=group, 1:4)%>%rename("value"="power")
+FDR2=gather(FDR, value=FDR, key=group, 1:4)%>%rename("value"="FDR")
+
+FDR_label <- c("q-value=.01", "q-value=.05", "q-value=.3")
+names(FDR_label) <- c("0.01", "0.05", "0.3")
+
+measure_label <- c("FDR", "POWER")
+names(measure_label) <- c("FDR", "power")
+
+dat=rbind(data.frame(power2, measure="power"),data.frame(FDR2, measure="FDR"))%>%
+  mutate(group=factor(group, levels=c("Complete", "DR_W", "DR_UW", "Plugin")))%>%
+  filter(!is.na(value))
+
+g=ggplot(dat, aes(x = group, y = value, color=group)) +
+  geom_boxplot(width = 0.45,fill = "white") + 
+  facet_grid(measure~tFDR, labeller = labeller(tFDR=FDR_label, measure=measure_label),
+             scales='free')+
+  scale_color_manual(values =  c("red","yellow","blue","orange"))+
+  geom_hline(data = dat %>% filter(measure == "FDR"),
+             aes(yintercept = tFDR), col = "grey", linetype = "dashed")+
+  theme(panel.grid = element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        panel.spacing = unit(0.2, "cm"),text = element_text(size=12),
+        legend.position = "right",legend.title= element_blank())
+
+g
+
+```
+

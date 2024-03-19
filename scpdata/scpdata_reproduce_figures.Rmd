@@ -1,0 +1,182 @@
+---
+title: "scpdata_main_analysis"
+author: "Haeun Moon"
+output: html_document
+date: "2024-03-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache= FALSE)
+```
+
+# Load packages
+
+```{r load_libraries, results='hide', message=F, warning=F}
+#library(BiocManager)
+#BiocManager::install(version = "3.18")
+#BiocManager::install("scpdata",type = "source")
+#BiocManager::install("scp",type = "source")
+
+require(data.table)
+library(scpdata)
+library(scp)
+library(ggplot2)
+library(dplyr)
+library(ggpubr)
+library(gridExtra)
+require(sandwich)
+
+theme_set(theme_pubr())
+
+source("R_wrapper_VAE.R")
+```
+
+# Load data
+
+```{r load_data, results='hide', message=F, warning=F}
+scp <-leduc2022_pSCoPE()
+annote=colData(leduc2022_pSCoPE())
+supple=read.csv("SuppData_4 - Meta_pSCoPE.csv", header=TRUE)
+
+meta=data.frame(rownames=rownames(annote), 
+                set=annote$Set, 
+                channel=annote$Channel,
+                batch=annote$lcbatch,
+                digest=as.numeric(annote$digest),
+                type=as.factor(annote$SampleType),
+                diameter=supple$diameter,
+                elongation=supple$elongation)%>%
+            na.omit()
+
+```
+
+# Start generating figures
+
+```{r, Figure_3A, warning=F}
+x.peptide=t(assay(scp[["peptides_log"]]))
+x.peptide.observed=apply(x.peptide, MARGIN = 2, FUN = function(x) length(x[!is.na(x)]) )/nrow(x.peptide)
+x.peptide_adjust=x.peptide[,which(x.peptide.observed>0.7)]
+
+Fig3A=qplot(as.vector(x.peptide_adjust),geom="histogram",
+            bins = 100, fill=I("grey"), col=I("black"),
+            main="", xlab = "Peptide", ylab = "",
+            xlim=c(-4,4),
+            show.legend = FALSE)+
+  theme(text = element_text(size=9))
+
+```
+
+
+```{r, Figure_3B}
+x.peptide1=x.peptide[,which(x.peptide.observed>0.2)]
+x.peptide1.observed=apply(x.peptide1, MARGIN = 2, FUN = function(x) length(x[!is.na(x)]) )/nrow(x.peptide)
+
+data=data.frame(x.peptide1,rownames=rownames(x.peptide1))
+data=inner_join(meta, data,  by="rownames")
+covariate=data%>%dplyr::select(type, digest,diameter,elongation)
+raw.pep1=data[,c((ncol(meta)+1):(ncol(meta)+ncol(x.peptide1)))]
+
+batches_cate=matrix(covariate$type,ncol=1,byrow=F) 
+batches_cont=matrix(c(covariate$digest,covariate$diameter,covariate$elongation),ncol=3,byrow=F) 
+
+data <-raw.pep1; data[is.na(data)] <- 0.;
+mask <- - as.matrix(is.na(as.matrix(raw.pep1)))
+vae.impute1<-vae(data,mask,batches_cate,batches_cont, NULL, dist_block=list('Gaussian'),
+                c(dim(data)[2]), num_epoch=300L, verbose=FALSE)[[1]]
+
+raw.pep=raw.pep1[,which(x.peptide1.observed>0.7)]
+vae.impute=vae.impute1[,which(x.peptide1.observed>0.7)]
+dist.data=data.frame(before=as.vector(dist(raw.pep)), after=as.vector(dist(vae.impute)))%>%melt()
+
+Fig3B=ggplot(dist.data, aes(x=value, fill=as.factor(variable)))+ geom_density(alpha = 0.3)+
+  scale_fill_viridis_d(labels = c("Before", "After"))+
+  scale_x_continuous(limits = c(0, 50))+xlab("Pairwise distance")+
+  ylab("Density")+
+  theme(text = element_text(size = 8), 
+        legend.position=c(0.85,0.9),
+        legend.title= element_blank(),
+        legend.key.size = unit(0.3, 'cm'))   
+
+```
+
+
+```{r, Figure_3C}
+propensity=apply(raw.pep, MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )/ncol(raw.pep)
+mnar=data.frame(mean_abun=rowMeans(raw.pep, na.rm=TRUE))
+
+p=ncol(raw.pep); n=nrow(raw.pep); res.pep=matrix(NA, n,p); 
+
+for(i.p in 1:p){
+  model1=lm(raw.pep[,i.p]~diameter+elongation+type+digest, data=covariate)
+  res.pep[which(!is.na(raw.pep[,i.p])),i.p]=model1$residuals
+}
+
+model2=lm(propensity~diameter+elongation+type+digest, data=covariate)
+prop.res=model2$residuals
+
+
+mnar$mean_resi=rowMeans(res.pep, na.rm=TRUE)
+mnar$prop.res=prop.res
+
+Fig3C=ggplot(mnar, aes(x=mean_resi, y=prop.res)) + geom_point()+
+  scale_x_continuous(limits = c(-0.3, 0.2))+
+  scale_y_continuous(limits = c(-0.4, 0.2))+
+  xlab("Mean residual abundance") + ylab("Propensity residual")+
+  theme(text = element_text(size=8))
+
+```
+
+
+
+```{r, figure_3D}
+data=data.frame(x.peptide_adjust,rownames=rownames(x.peptide_adjust))
+data=inner_join(meta, data,  by="rownames")
+p=ncol(x.peptide_adjust)
+covariate=data%>%dplyr::select(type, digest,diameter,elongation)
+raw.pep=data[,c((ncol(meta)+1):(ncol(meta)+p))]
+propensity=apply(raw.pep, MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )/ncol(raw.pep)
+
+Fig3D1=qplot(covariate$diameter,propensity,main="", 
+             xlab = "Diameter",
+             ylab = "Propensity")+
+  theme(text = element_text(size=9))
+Fig3D2=qplot(covariate$elongation,propensity,main="", 
+             xlab = "Elongation",
+             ylab = "Propensity")+
+  theme(text = element_text(size=9))
+Fig3D3=qplot(covariate$type,propensity,main="", 
+             xlab = "Type",
+             ylab = "Propensity",
+             geom=c("boxplot"), fill = covariate$type,
+             show.legend = FALSE)+
+        theme(text = element_text(size=7))
+
+Fig3D4=qplot(covariate$digest,propensity,main="", 
+             xlab = "Digest",
+             ylab = "Propensity")+
+  theme(text = element_text(size=9))
+
+```
+
+
+# Figure 3
+
+```{r}
+Fig3=ggarrange(ggarrange(Fig3A, Fig3B,Fig3C,ncol = 3,align = "h",widths = c(2,2),labels = c("A", "B", "C") ),
+          ggarrange(Fig3D1, Fig3D2, Fig3D3, Fig3D4, ncol = 4,align = "h",widths = c(2,2),labels = c("D")),
+          nrow = 2, 
+          heights = c(2,2)) 
+
+Fig3
+```
+
+
+# Figure C4
+```{r}
+cor.mat=cor(raw.pep, use='pairwise.complete.obs')
+par(mfrow = c(1, 2))
+hist(cor.mat, breaks=100, main="", xlab="Cor")
+hist(apply(abs(cor.mat), 1, quantile, 0.9), breaks=100, main="", xlab="Quantile 90% of |Cor|")
+
+```
+

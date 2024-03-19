@@ -1,0 +1,233 @@
+---
+title: "scpdata_main_analysis"
+author: "Haeun Moon"
+output: html_document
+date: "2024-03-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache= FALSE)
+```
+
+# Load packages
+
+```{r load_libraries, results='hide', message=F, warning=F}
+#library(BiocManager)
+#BiocManager::install(version = "3.18")
+#BiocManager::install("scpdata",type = "source")
+#BiocManager::install("scp",type = "source")
+
+require(data.table)
+library(scpdata)
+library(scp)
+library(ggplot2)
+library(dplyr)
+library(ggpubr)
+library(gridExtra)
+require(sandwich)
+
+theme_set(theme_pubr())
+
+source("R_wrapper_VAE.R")
+```
+
+# Load data
+
+```{r load_data, results='hide', message=F, warning=F}
+scp <-leduc2022_pSCoPE()
+annote=colData(leduc2022_pSCoPE())
+supple=read.csv("SuppData_4 - Meta_pSCoPE.csv", header=TRUE)
+
+meta=data.frame(rownames=rownames(annote), 
+                set=annote$Set, 
+                channel=annote$Channel,
+                batch=annote$lcbatch,
+                digest=as.numeric(annote$digest),
+                type=as.factor(annote$SampleType),
+                diameter=supple$diameter,
+                elongation=supple$elongation)%>%
+            na.omit()
+
+```
+
+# Data preprocessing
+
+```{r, data_preprocessing}
+x.peptide=t(assay(scp[["peptides_log"]]))
+x.peptide.observed=apply(x.peptide, MARGIN = 2, FUN = function(x) length(x[!is.na(x)]) )/nrow(x.peptide)
+x.peptide1=x.peptide[,which(x.peptide.observed>0.2)]
+x.peptide1.observed=apply(x.peptide1, MARGIN = 2, FUN = function(x) length(x[!is.na(x)]) )/nrow(x.peptide)
+
+data=data.frame(x.peptide1,rownames=rownames(x.peptide1))
+data=inner_join(meta, data,  by="rownames")
+covariate=data%>%dplyr::select(type, digest,diameter,elongation)
+raw.pep1=data[,c((ncol(meta)+1):(ncol(meta)+ncol(x.peptide1)))]
+
+```
+
+# Fit outcome models
+
+```{r, fit outcome models}
+batches_cate=matrix(covariate$type,ncol=1,byrow=F) 
+batches_cont=matrix(c(covariate$digest,covariate$diameter,covariate$elongation),ncol=3,byrow=F) 
+
+data <-raw.pep1; data[is.na(data)] <- 0.;
+mask <- - as.matrix(is.na(as.matrix(raw.pep1)))
+vae.impute1<-vae(data,mask,batches_cate,batches_cont, NULL, dist_block=list('Gaussian'),
+                c(dim(data)[2]), num_epoch=300L, verbose=FALSE)[[1]]
+
+#select the peptides whose observed rate is larger than 0.7
+raw.pep=raw.pep1[,which(x.peptide1.observed>0.7)]
+vae.impute=vae.impute1[,which(x.peptide1.observed>0.7)]
+p=ncol(raw.pep); n=nrow(raw.pep)
+
+#Perform a low dimensional regression for DR_W
+low.impute=matrix(0, n,p)
+
+for(i.p in 1:p){
+  lowmodel=lm(raw.pep[,i.p]~diameter+type+elongation+digest, data=covariate)
+  low.impute[,i.p]=c(predict(lowmodel, newdata=covariate))
+}
+```
+
+#Construct Pseudo-outcomes
+
+```{r, compute_pseudo_outcomes, warning=F}
+fitd=raw.pep
+
+for(i.p in 1:p){
+  mask=1-is.na(raw.pep[,i.p])
+  logit=glm(mask~. ,data=covariate, family = "binomial")
+  fitd[,i.p]<-as.vector(logit$fitted.values)
+}
+
+AG=(raw.pep-low.impute); AG[which(is.na(AG),arr.ind = T)]=0
+low.pep=low.impute+AG/fitd; 
+
+AG=(raw.pep-vae.impute); AG[which(is.na(AG),arr.ind = T)]=0
+DR.pep=vae.impute+AG/fitd; 
+
+```
+
+# Multiple testing procedure
+
+```{r linear regression}
+
+pval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+tval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+beta=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+qval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugv=rep(0,p), plugin=rep(0,p))
+
+for(i.p in 1:p){
+  
+  fit=lm(raw.pep[,i.p]~diameter+type+elongation+digest, data=covariate)
+  pval$com[i.p]=coef(summary(fit))[2,4] 
+  tval$com[i.p]=coef(summary(fit))[2,3] 
+  beta$com[i.p]=coef(summary(fit))[2,1] 
+  
+  fit=lm(DR.pep[,i.p]~diameter+type+elongation+digest, data=covariate)
+  beta$DR_UW[i.p]=coef(summary(fit))[2,1] 
+  tval$DR_UW[i.p]=beta$DR_UW[i.p]/sqrt(vcovHC(fit)[2,2])
+  pval$DR_UW[i.p]=2*pt(abs(tval$DR_UW)[i.p], n-1, lower.tail=FALSE) 
+  
+  fit=lm(low.pep[,i.p]~diameter+type+elongation+digest, data=covariate)
+  beta$DR_W[i.p]=coef(summary(fit))[2,1] 
+  tval$DR_W[i.p]=beta$DR_W[i.p]/sqrt(vcovHC(fit)[2,2])
+  pval$DR_W[i.p]=2*pt(abs(tval$DR_W)[i.p], n-1, lower.tail=FALSE) 
+  
+  fit=lm(vae.impute[,i.p]~diameter+type+elongation+digest, data=covariate)
+  pval$plugin[i.p]=coef(summary(fit))[2,4] 
+  tval$plugin[i.p]=coef(summary(fit))[2,3] 
+  beta$plugin[i.p]=coef(summary(fit))[2,1] 
+  
+}
+
+qval$com=p.adjust(pval$com, method = "BH")
+qval$DR_UW=p.adjust(pval$DR_UW, method = "BH")
+qval$DR_W=p.adjust(pval$DR_W, method = "BH")
+qval$plugin=p.adjust(pval$plugin, method = "BH")
+
+
+```
+
+
+# Figure 4 : Volcano plot
+
+```{r}
+complete=data.frame(qvalue=qval$com, beta=beta$com)
+DR_UW=data.frame(qvalue=qval$DR_UW, beta=beta$DR_UW)
+DR_W=data.frame(qvalue=qval$DR_W, beta=beta$DR_W)
+plugin=data.frame(qvalue=qval$plugin, beta=beta$plugin)
+
+mycolors <- c("blue", "red", "black", "black")
+names(mycolors) <- c("UP", "DOWN", "NO", "TRUE")
+
+vpar=0; qcut=0.05; xaxis=0.05; yaxis=15
+
+complete$diffexpressed <- "NO";complete$diffexpressed[which(complete$qvalue<qcut&complete$beta>0)]<-"UP"; complete$diffexpressed[which(complete$qvalue<qcut&complete$beta<0)]<-"DOWN"
+DR_UW$diffexpressed <- "NO";DR_UW$diffexpressed[which(DR_UW$qvalue<qcut&DR_UW$beta>0)]<-"UP"; DR_UW$diffexpressed[which(DR_UW$qvalue<qcut&DR_UW$beta<0)]<-"DOWN"
+DR_W$diffexpressed <- "NO";DR_W$diffexpressed[which(DR_W$qvalue<qcut&DR_W$beta>0)]<-"UP"; DR_W$diffexpressed[which(DR_W$qvalue<qcut&DR_W$beta<0)]<-"DOWN"
+plugin$diffexpressed <- "NO";plugin$diffexpressed[which(plugin$qvalue<qcut&plugin$beta>0)]<-"UP"; plugin$diffexpressed[which(plugin$qvalue<qcut&plugin$beta<0)]<-"DOWN"
+
+g_com=ggplot(data=complete, aes(x=beta, y=-log10(qvalue),col=diffexpressed)) + 
+  geom_point()+ theme_minimal()+
+  geom_hline(yintercept=-log10(qcut), col="red")+
+  scale_colour_manual(values = mycolors)+
+  labs(title="Complete")+xlab(expression(paste(hat(beta))))+
+  theme(title=element_text(size=12),legend.position="none")+
+  scale_x_continuous(limits = c(-xaxis, xaxis))+
+  scale_y_continuous(limits = c(0, yaxis))
+
+g_DR_W=ggplot(data=DR_W, aes(x=beta, y=-log10(qvalue),col=diffexpressed)) + 
+  geom_point()+ theme_minimal()+
+  geom_hline(yintercept=-log10(qcut), col="red")+
+  scale_colour_manual(values = mycolors)+
+  labs(title="DR_W")+xlab(expression(paste(hat(beta))))+
+  theme(title=element_text(size=12),legend.position="none")+
+  scale_x_continuous(limits = c(-xaxis, xaxis))+
+  scale_y_continuous(limits = c(0, yaxis))
+
+g_DR_UW=ggplot(data=DR_UW, aes(x=beta, y=-log10(qvalue),col=diffexpressed)) + 
+  geom_point()+ theme_minimal()+
+  geom_hline(yintercept=-log10(qcut), col="red")+
+  scale_colour_manual(values = mycolors)+
+  labs(title="DR_UW")+xlab(expression(paste(hat(beta))))+
+  theme(title=element_text(size=12),legend.position="none")+
+  scale_x_continuous(limits = c(-xaxis, xaxis))+
+  scale_y_continuous(limits = c(0, yaxis))
+
+g_plugin=ggplot(data=plugin, aes(x=beta, y=-log10(qvalue),col=diffexpressed)) + 
+  geom_point()+ theme_minimal()+
+  geom_hline(yintercept=-log10(qcut), col="red")+
+  scale_colour_manual(values = mycolors)+
+  labs(title="Plugin")+xlab(expression(paste(hat(beta))))+
+  theme(title=element_text(size=12),legend.position="none")+
+  scale_x_continuous(limits = c(-xaxis, xaxis))+
+  scale_y_continuous(limits = c(0, yaxis))
+
+
+grid.arrange(g_com, g_DR_W,g_DR_UW, g_plugin, ncol=2)
+
+```
+
+# Table 1 
+
+
+
+```{r peptide discoveries}
+  qcut=0.05
+
+  cat(print(paste0("Empirical FDR",
+      "\nComplete : ", round(length(which(beta$com<0&qval$com<qcut))/length(which(beta$com>0&qval$com<qcut)),3),
+      "\nDR_W : ", round(length(which(beta$DR_W<0&qval$DR_W<qcut))/length(which(beta$DR_W>0&qval$DR_W<qcut)),3),
+      "\nDR_UW : ", round(length(which(beta$DR_UW<0&qval$DR_UW<qcut))/length(which(beta$DR_UW>0&qval$DR_UW<qcut)),3),
+      "\nPlugin :", round(length(which(beta$plugin<0&qval$plugin<qcut))/length(which(beta$plugin>0&qval$plugin<qcut)),3))))
+
+  cat(print(paste0("Number of discoveries",
+                 "\nComplete : ", length(which(qval$com<qcut&(beta$com)>0)),
+                 "\nDR_W : ", length(which(qval$DR_W<qcut&(beta$DR_W)>0)),
+                 "\nDR_UW : ", length(which(qval$DR_UW<qcut&(beta$DR_UW)>0)),
+                 "\nPlugin : ", length(which(qval$plugin<qcut&(beta$plugin)>0)))))
+ 
+```
+
