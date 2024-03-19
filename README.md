@@ -16,7 +16,7 @@ This pipeline can be applied to a custom dataset, provided that it conforms to t
 
 The method involves regressing each column of `raw.pep` on both the `covariate` and the other columns of `raw.pep`. Each column of Y has many missing entries, even when used as a covariate in the regression problem. We use an algorithm called `scVAEIT', a variant of variational auto-encoder, which is a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression (Du et al. (2022)). 
 
-Here, we provide version 0.2.0 of `scVAEIT`, which is the version used for the analysis in the paper Moon et al. (2024). For a general use, we recommend downloading the newest version of the code from the repository `jaydu1/scVAEIT`. We also provide a R wrapper function `R_wrapper_VAE.R`, written by Jin-Hong Du, to compile  `scVAEIT` in R. <b>Both the folder `scVAEIT` and the file `R_wrapper_VAE.R` should be located in the same directory with a pipeline code to make the code work.</b>
+Here, we provide version 0.2.0 of `scVAEIT`, which is the version used for the analysis in the paper Moon et al. (2024). For a general use, we recommend downloading the newest version of the code from the repository `jaydu1/scVAEIT`. We also provide a R wrapper function `R_wrapper_VAE.R`, written by Jin-Hong Du, to compile  `scVAEIT` in R. <b>Both the folder `scVAEIT` and the file `R_wrapper_VAE.R` should be located in the same directory with a pipeline code.</b>
 
 The `scVAEIT` requires setting up the python packages dependencies. Below are the versions that is used for the analysis in the paper. 
 
@@ -43,9 +43,9 @@ If you are using `conda`, simply replace `mamba` above by `conda`.
 
 We provides codes for reproducing the results presented in the paper.  
 
-A folder `scpdata` contains codes for reproducing the result in Section 4. The data used for this analsysis is the single-cell proteomic data measured by leduc et al. (2022) , and can be downloaded from a bioconductor packages `scpdata`. A file `scpdata_reproduce_figures.Rmd` reproduce figures in the main text and the supplementary material. A file `scpdata_reproduce_main_results.Rmd` reproduce the peptide discovery results. A file `scpdata_reproduce_realistic_simulation1.Rmd` and `scpdata_reproduce_realistic_simulation2.Rmd` reproduce the realistic simulation result presented in Section 4.1.
+The `scpdata` folder contains codes for reproducing the result in Section 4. The data used for this analsysis is the single-cell proteomic data measured by leduc et al. (2022) , and can be downloaded from a bioconductor packages `scpdata`. A file `scpdata_reproduce_figures.Rmd` reproduce figures in the main text and the supplementary material. A file `scpdata_reproduce_main_results.Rmd` reproduce the peptide discovery results. A file `scpdata_reproduce_realistic_simulation1.Rmd` and `scpdata_reproduce_realistic_simulation2.Rmd` reproduce the realistic simulation result presented in Section 4.1.
 
-A folder `ADdata` contains codes and data for reproducing the result in Section 5. The data used for this analsysis is the bulk-cell brain data related to Alzheimer's Diseases. The file `meta.csv` was downloaded from 
+The `ADdata` folder contains codes and data for reproducing the result in Section 5. The data used for this analsysis is the bulk-cell brain data related to Alzheimer's Diseases. The file `meta.csv` was downloaded from 
 (https://panoramaweb.org/Panorama%20Public/2022/MacCoss%20-%20Human%20AD%20Clean%20Diagnosis%20DIA%20Data/SMTG/wiki-page.view?name=SMTG%20Metadata). Four other files for peptide data on each brain region can be downloaded from
 (https://panoramaweb.org/Panorama%20Public/2022/MacCoss%20-%20Human%20AD%20Clean%20Diagnosis%20DIA%20Data/project-begin.view)
 with a selection of Level3A. 
