@@ -3,10 +3,25 @@ title:  "Pipeline for least square post-imputation inference for proteomic data"
 author: "Haeun Moon"
 output: html_document
 date: "2024-03-15"
+#references:
+#-id: benjamini1995controlling
+# title: Controlling the 'false' discovery rate: a practical and powerful approach to multiple testing
+#   author:
+#    - family: Benjamini
+#     given: Yoav
+#    - family: Hochberg
+#    given: Yosef
+#  container-title: Journal of the Royal statistical society: series B (Methodological)
+#  volume: 57
+#  number: 1
+#  page: 289--300
+#  issued:
+#    year:1995
+#  publisher: Wiley Online Library
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache= TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache= FALSE)
 ```
 
 # Introduction
@@ -18,8 +33,9 @@ For more information and details on the theoretical background of the methodolog
 **You can replace the chunk `rename_data` with any data set you wish to analyze. 
 For this, you have to specify:**
 
-- `raw.pep``: high-dimensional peptide data outcome with missing values. (A matrix #observations x #peptides)
-- `covariates`: low-dimensional covariates without missing values. (A data frame #observations x #covariates)
+- `raw.pep`: high-dimensional peptide data outcome with missing values. (A matrix #observations x #peptides)
+- `covariate`: A low-dimensional covariate without missing values. (A data frame #observations x #covariates)
+- `missing_pattern`: An assumed missing pattern of `raw.pep`. Either `MAR` or `MCAR`.
 
 
 # Preliminaries
@@ -27,27 +43,24 @@ For this, you have to specify:**
 ## Load libraries
 
 ```{r load_libraries, results='hide', message=F, warning=F}
-require(data.table)
 require(mvtnorm)
 library(stats)
 require(sandwich)
-require(dplyr)
 require(clusterGeneration)
 
-source("0. VAE_python.R")
+source("R_wrapper_VAE.R")
 
-set.seed(1234)
 ```
 
 ## Generate example dataset
 
-Two example datasets are generated: the first consists of high-dimensional peptide abundance data with an arbitrary correlation structure and MAR missing patterns, and the second consists of low-dimensional covariate information data, which is fully observed.
+Two data are generated: `raw.pep` consists of high-dimensional peptide abundance data with an arbitrary correlation structure and MAR missing patterns, and `covariate` consists of low-dimensional covariate information data, which is fully observed.
 
 ```{r choose_parameters}
-seed <- 4321
 n <- 500 # number of observations
 p <- 1000 # dimension of peptide data 
 e <- 0.3 # parameter for missing rate 
+set.seed(123)
 ```
 
 
@@ -59,17 +72,15 @@ W2=runif(n,0,1) # Other covariate(s)
 covariate=data.frame(W1,W2) 
 
 #High-dimensional outcome matrix without missingness is generated from an arbitrary correlation structure 
-
 C0 <- rcorrmatrix(p/10, alphad = 1) 
 C<-diag(10) %x% C0
 comp.pep=rmvnorm(n, mean=rep(0,p),sigma=C)+replicate(p,covariate$W2)
 
 #Signals are injecting to true peptides upon a random selection of 10% of total peptides.
+true.peptide=sample(p, p*0.1)
+comp.pep[,true.peptide]=comp.pep[,true.peptide]+0.6*replicate(length(true.peptide),covariate$W1) 
 
-true.peptide=sample(p, p*0.1) 
-comp.pep[,true.peptide]=comp.pep[,true.peptide]+0.7*replicate(length(true.peptide),covariate$W1) 
-
-#generating missing mask under MAR pattern. A rate of missingness is roughly around a tuning parameter, denoted as 'e.' If a certain peptide has an excessively high rate of missingness, imputation models will not work satisfactorily. Therefore, we set a ceiling on the missing rate (default is 0.8).
+#Missing masks are generated under the MAR assumption. A rate of missingness is roughly around a tuning parameter 'e'. If a certain peptide has an excessively high rate of missingness, imputation models will not work satisfactorily. Therefore, we impose a safety cap on the missing rate of individual peptides (set at 0.8).
 
 ex=exp(covariate$W2)/(1+exp(covariate$W2))/2
 misp=rbinom(n, p, prob=ifelse(ex*e/mean(ex)>0.8, 0.8, ex*e/mean(ex)))
@@ -81,7 +92,7 @@ ij.na=cbind(rep(c(1:n), misp),unlist(lapply(misp, generate_sample)))
 raw.pep=comp.pep
 raw.pep[ij.na]=NA
 
-toy_data <- list(raw.pep=raw.pep, covariate=covariate)
+toy_data <- list(raw.pep=raw.pep, covariate=covariate, missing_pattern="MAR")
 ```
 
 **If you want to use your own data set, change the following chunk**
@@ -89,6 +100,7 @@ toy_data <- list(raw.pep=raw.pep, covariate=covariate)
 ```{r rename_data}
 raw.pep <- toy_data$raw.pep
 covariate <- data.frame(toy_data$covariate)
+missing_pattern<-toy_data$missing_pattern
 
 n <- dim(raw.pep)[1]
 p <- dim(raw.pep)[2]
@@ -96,11 +108,11 @@ p <- dim(raw.pep)[2]
 
 # Imputation
 
-We fit an outcome model using both low-dimensional covariates and the entire peptide matrix. A challenge is that a peptide matrix has many missing entries even when used as a covariate in the regression problem. Our employed model is a variant of variational auto-encoder, called VAEIT, a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression.
+We fit an outcome model using both low-dimensional covariates and the entire peptide matrix. A challenge is that a peptide matrix has many missing entries even when used as a covariate in the regression problem. Our employed model is a variant of variational autoencoder, called VAEIT, a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression.
 
 The VAEIT model accepts input for a low-dimensional covariate in two types: continuous (batches_cont) and categorical (batches_cate). **If you are using your own dataset, and if it contains categorical low-dimensional covariates, adjust batches_cate and batches_cont accordingly.**
 
-```{r fitting outcome}
+```{r fitting_outcome}
 
 batches_cate=NULL
 batches_cont=cbind(covariate$W1, covariate$W2)
@@ -115,7 +127,7 @@ vae.impute<-vae(data,mask,batches_cate,batches_cont, NULL,dist_block=list('Gauss
 
 # Construct pseudo-outcomes
 
-Pseudo-outcomes are constructed through a predefined formula which utilize fitted outcomes and propensity scores. Fitted outcomes were obtained from a previous chunk `fitting outcome`. We further fit propensity scores using a logit model.
+Pseudo-outcomes are constructed through a predefined formula which utilize fitted outcomes and propensity scores. Fitted outcomes were obtained from a previous chunk. We further fit propensity scores using a logit model.
 
 ```{r construct pseudo-outcomes, message = F, warning = F}
 
@@ -135,49 +147,60 @@ fitd=raw.pep
 
 # Linear regression analysis
 
-We perform a linear regression of each column of peptide data on low-dimensional covariates. The covariate of interest is selected from the first column of the covariate dataframe (subject to change for analysis purposes).
+We perform a linear regression for peptide abundance on  on low-dimensional covariates. As a response, each column of the doubly robust psuedo-outcomes `DR.pep` (proposed method), or the fitted outcomes `vae.impute` (plugin method) are considered. The covariate of interest is set to the first column of the data frame `covariate`, but it is subject to change for analysis purposes.
 
-A heteroskedastic-consistent estimator is used to estimate the variance of the regression coefficient. Under the assumption of Missing Completely at Random (MCAR), this simplifies to using the usual Ordinary Least Squares (OLS) estimator.
+A choice of variance estimator for the t-test depends on an missing pattern of  `raw.pep` data. Under the MAR missing pattern, a heteroskedastic-consistent estimator is used, and under the assumption of Missing Completely at Random (MCAR), this simplifies to using the usual Ordinary Least Squares (OLS) estimator.
 
-Linear regression is fitted using doubly robust psuedo-outcomes `DR.pep` (proposed method) and the using the imputation outcomes `vae.impute` (plug-in method).  
-
-```{r linear regression, message = F, warning = F}
+```{r linear_regression, message = F, warning = F}
 
 
 pval=data.frame(DR_UW=rep(0,p), plugin=rep(0,p))
 tval=data.frame(DR_UW=rep(0,p), plugin=rep(0,p))
 beta=data.frame(DR_UW=rep(0,p), plugin=rep(0,p))
 
-for(i.p in 1:p){
-   fit=lm(DR.pep[,i.p]~., data=covariate)
+if(missing_pattern=="MAR"){
+  for(i.p in 1:p){
+    fit=lm(DR.pep[,i.p]~., data=covariate)
     beta$DR_UW[i.p]=coef(summary(fit))[2,1] 
     tval$DR_UW[i.p]=beta$DR_UW[i.p]/sqrt(vcovHC(fit)[2,2])
     pval$DR_UW[i.p]=2*pt(abs(tval$DR_UW[i.p]), n-1, lower.tail=FALSE) 
+    
+    fit=lm(vae.impute[,i.p]~., data=covariate)
+    pval$plugin[i.p]=coef(summary(fit))[2,4] 
+    tval$plugin[i.p]=coef(summary(fit))[2,3] 
+    beta$plugin[i.p]=coef(summary(fit))[2,1] 
+    }
+} else if(missing_pattern=="MCAR"){
+    for(i.p in 1:p){
+    fit=lm(DR.pep[,i.p]~., data=covariate)
+    beta$DR_UW[i.p]=coef(summary(fit))[2,1] 
+    tval$DR_UW[i.p]=coef(summary(fit))[2,3] 
+    pval$DR_UW[i.p]=coef(summary(fit))[2,4] 
     
     fit=lm(vae.impute[,i.p]~W1+W2, data=covariate)
     pval$plugin[i.p]=coef(summary(fit))[2,4] 
     tval$plugin[i.p]=coef(summary(fit))[2,3] 
     beta$plugin[i.p]=coef(summary(fit))[2,1] 
-
-}
+    }
+  } else{print('Invalid missing pattern')}
+  
 
 ```
 
 # Multiple Testing procedure
 
 
-The p-values derived in `linear regression`, com-
-bined with a multiple testing procedure, allow us to make discoveries of important peptides associated with a covariate of interest.
+We combine the p-values derived in `linear regression` with a multiple testing procedure, to make discoveries of important peptides associated with a covariate of interest.
 
-Benjamini-Hochberg procedure (Benjamini and Hochberg, 1995) is applied. First, we transform the p-values to q-values, and identify the indices whose q-values are less than a predefined cutoff (tFDR). `tFDR` can be set according to the purpose of analysis. Typical values include 0.01, 0.05, 0.1, or 0.3.
+Benjamini-Hochberg procedure [[@benjamini1995controlling]] is applied for a multiple testing. First, we transform the p-values to q-values, and identify the indices whose q-values are less than a predefined cutoff `tFDR`. A value of`tFDR` can be set according to the purpose of analysis. Typical values include 0.01, 0.05, 0.1, or 0.3.
 
-```{r multiple testing}
+```{r multiple_testing}
 
 qval=data.frame(DR_UW=rep(0,p), plugin=rep(0,p))
 qval$DR_UW=p.adjust(pval$DR_UW, method = "BH")
 qval$plugin=p.adjust(pval$plugin, method = "BH")
 
-tFDR=0.05
+tFDR=0.3
 which(qval$DR_UW<tFDR);
 
 ```
@@ -191,14 +214,13 @@ When synthetics were used, we can evaluate the algorithm based on a known ground
 power_DR=length(intersect(which(qval$DR_UW<tFDR),true.peptide))/length(true.peptide)
 FDR_DR=length(setdiff(which(qval$DR_UW<tFDR),true.peptide))/length(which(qval$DR_UW<tFDR))
 
-print(paste0("FDR (proposed) : ", round(power_DR,3),", Power (proposed) : ", round(FDR_DR,3) ))
-
+print(paste0("FDR (proposed) : ", round(FDR_DR,3),", Power (proposed) : ", round(power_DR,3) ))
 
 power_plugin=length(intersect(which(qval$plugin<tFDR),true.peptide))/length(true.peptide)
 FDR_plugin=length(setdiff(which(qval$plugin<tFDR),true.peptide))/length(which(qval$plugin<tFDR))
 
 
-print(paste0("FDR (plug-in) : ", round(power_plugin,3), ", Power (plug-in) : ", round(FDR_plugin,3)))
+print(paste0("FDR (plug-in) : ", round(FDR_plugin,3), ", Power (plug-in) : ", round(power_plugin,3)))
 
 
 
