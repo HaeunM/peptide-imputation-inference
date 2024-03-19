@@ -1,6 +1,6 @@
 # peptide-imputation-inference
 
-This repository contains codes associated with the paper [AUGMENTED DOUBLY ROBUST POST-IMPUTATION INFERENCE FOR PROTEOMIC DATA]. 
+This repository contains codes associated with the paper [AUGMENTED DOUBLY ROBUST POST-IMPUTATION INFERENCE FOR PROTEOMIC DATA] by Moon et al. (2024). 
 
 ## General pipeline
 
@@ -16,7 +16,7 @@ This pipeline can be applied to a custom dataset, provided that it conforms to t
 
 The method involves regressing each column of `raw.pep` on both the `covariate` and the other peptides as the high-dimensional auxiliary variables. An addi-
 tional challenge is that each column of Y has many missing entries, even when used as a covariate in the regression problem. To address this, we use variational auto-encoder,
-a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression. Our pipeline uses an algorithm called `scVAEIT' that is designed for addressing the specific structures of single cell data. We use this algorithm both for single-cell and bulk-cell applications. 
+a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression. Our pipeline uses an algorithm called `scVAEIT' that is designed for addressing the specific structures of single cell data (Du et al. (2022)). We use this algorithm both for single-cell and bulk-cell applications. 
 
 Here, we provide version 0.2.0 of `scVAEIT`, which were used for the analysis in the paper. For a general use, we recommend downloading the newest version of the code from the repository `jaydu1/scVAEIT`. We also provide an R wrapper function `R_wrapper_VAE.R`, written by Jin-Hong Du, to compile  `scVAEIT` in R. Both the folder `scVAEIT` and a file `R_wrapper_VAE.R` should be located in the same directory with a pipeline code to make the code work.
 
@@ -45,7 +45,7 @@ If you are using `conda`, simply replace `mamba` above by `conda`.
 
 We provides codes for reproducing the results presented in the paper.  
 
-A folder `scpdata` contains codes for reproducing the result in Section 4. The data used for this analsysis is the single-cell proteomic data measured by leduc, and can be downloaded from a bioconductor packages `scpdata`. A file `scpdata_reproduce_figures.Rmd` reproduce figures in the main text and the supplementary material. A file `scpdata_reproduce_main_results.Rmd` reproduce the peptide discovery results. A file `scpdata_reproduce_realistic_simulation1.Rmd` and `scpdata_reproduce_realistic_simulation2.Rmd` reproduce the realistic simulation result presented in Section 4.1.
+A folder `scpdata` contains codes for reproducing the result in Section 4. The data used for this analsysis is the single-cell proteomic data measured by leduc et al. (2022) , and can be downloaded from a bioconductor packages `scpdata`. A file `scpdata_reproduce_figures.Rmd` reproduce figures in the main text and the supplementary material. A file `scpdata_reproduce_main_results.Rmd` reproduce the peptide discovery results. A file `scpdata_reproduce_realistic_simulation1.Rmd` and `scpdata_reproduce_realistic_simulation2.Rmd` reproduce the realistic simulation result presented in Section 4.1.
 
 A folder `ADdata` contains codes and data for reproducing the result in Section 5. The data used for this analsysis is the bulk-cell brain data related to Alzheimer's Diseases. The file `meta.csv` was downloaded from 
 (https://panoramaweb.org/Panorama%20Public/2022/MacCoss%20-%20Human%20AD%20Clean%20Diagnosis%20DIA%20Data/SMTG/wiki-page.view?name=SMTG%20Metadata). Other files for peptide data on each brain region was downloaded from
@@ -53,6 +53,12 @@ A folder `ADdata` contains codes and data for reproducing the result in Section 
 with a selection of Level3A. 
 
 For running the codes, both 'scVAEIT' and 'R_wrapper_VAE.R' should be located in the same directory.
+
+## References 
+
+- Moon, Haeun, Du, Jin-Hong, Lei, Jing, and Roeder, Kathryn. 2024. "Augmented doubly robust post-imputation inference for proteomic data" Arxiv
+- Du, Jin-Hong, Cai, Zhanrui, and Roeder, Kathryn. 2022. "Robust probabilistic modeling for single-cell multimodal mosaic integration and imputation via scVAEIT" Proceedings of the National Academy of Sciences, 119(49)
+- Leduc, Andrew and Huffman, R Gray and Cantlon, Joshua and Khan, Saad and Slavov, Nikolai. 2022. "Exploring functional protein covariation across single cells using nPOP", Genome Biology, 23(1)
 
 
 
