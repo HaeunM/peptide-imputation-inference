@@ -1,20 +1,13 @@
-library(reticulate)
-
-#myenvs=conda_list()
-#envname=myenvs$name[5]
-#use_condaenv(envname, required = TRUE)
-use_condaenv(condaenv = "tf")
-scVAEIT <- import("scVAEIT")
-
 ##################################################################
 #
 # VAE
 #
 ##################################################################
 # import Python package (call after setting up python environment with reticulate)
-# library(reticulate)
 
-# scVAEIT <- import("scVAEIT") 
+library(reticulate)
+use_condaenv(condaenv = "tf")
+scVAEIT <- import("scVAEIT") 
 
 #' run VAE
 #'
