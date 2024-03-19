@@ -1,0 +1,197 @@
+---
+title: "ADdata_main_analysis"
+output: html_document
+date: "2024-03-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache= FALSE)
+```
+
+
+```{r load_libraries, results='hide', message=F, warning=F}
+require(data.table)
+library(dplyr)
+require(sandwich)
+
+source("R_wrapper_VAE.R")
+```
+
+# Data preprocessing
+
+```{r, preprocessing_data, warning=F}
+meta=read.csv("meta.csv", head=TRUE)
+
+STMG=read.csv("SMTG-pepGrp.batchadj.csv", head=TRUE)
+t_STMG=transpose(STMG[,-1])
+colnames(t_STMG) <- STMG[,1];rownames(t_STMG) <- colnames(STMG[,-1])
+t_STMG.observed=apply(t_STMG, MARGIN = 2, FUN = function(x) length(which(x>0))/nrow(t_STMG))
+t_STMG=t_STMG[,c(which(t_STMG.observed>0.5&t_STMG.observed<1))]
+t_STMG=t_STMG%>%mutate(region="SMTG")
+
+IPL=read.csv("IPL-pepGrp.batchadj.csv", head=TRUE)
+t_IPL=transpose(IPL[,-1])
+colnames(t_IPL) <- IPL[,1];rownames(t_IPL) <- colnames(IPL[,-1])
+t_IPL.observed=apply(t_IPL, MARGIN = 2, FUN = function(x) length(which(x>0))/nrow(t_IPL))
+t_IPL=t_IPL[,c(which(t_IPL.observed>0.5&t_IPL.observed<1))]
+t_IPL=t_IPL%>%mutate(region="IPL")
+
+Hipp=read.csv("Hipp-pepGrp.batchadj.csv", head=TRUE)
+t_Hipp=transpose(Hipp[,-1])
+colnames(t_Hipp) <- Hipp[,1];rownames(t_Hipp) <- colnames(Hipp[,-1])
+t_Hipp.observed=apply(t_Hipp, MARGIN = 2, FUN = function(x) length(which(x>0))/nrow(t_Hipp))
+t_Hipp=t_Hipp[,c(which(t_Hipp.observed>0.5&t_Hipp.observed<1))]
+t_Hipp=t_Hipp%>%mutate(region="Hipp")
+
+Caudate=read.csv("Caudate-pepGrp.batchadj.csv", head=TRUE)
+t_Caudate=transpose(Caudate[,-1])
+colnames(t_Caudate) <- Caudate[,1];rownames(t_Caudate) <- colnames(Caudate[,-1])
+t_Caudate.observed=apply(t_Caudate, MARGIN = 2, FUN = function(x) length(which(x>0))/nrow(t_Caudate))
+t_Caudate=t_Caudate[,c(which(t_Caudate.observed>0.5&t_Caudate.observed<1))]
+t_Caudate=t_Caudate%>%mutate(region="Caudate")
+
+ccols=Reduce(intersect, list(colnames(t_STMG), colnames(t_IPL), colnames(t_Hipp), colnames(t_Caudate)))
+data0=bind_rows(t_STMG[,ccols], t_IPL[,ccols], t_Hipp[,ccols], t_Caudate[,ccols])
+
+#Annotating brain data with subject-level covariates.
+
+ind=rep(0, nrow(data0))
+for(i in 1:nrow(data0)){
+  ind[i]=min(which(rownames(data0)[i]==meta$Sample.Label))  
+}
+ind[which(ind==Inf)]<-NA
+
+data0=data0%>%mutate(condition=meta$Condition[ind],
+                   PMI=meta$PMI..hrs.[ind],
+                   sex=meta$Sex[ind],
+                   age=meta$Age[ind])
+
+data=data0%>%filter(!is.na(condition)&!is.na(PMI))
+
+#re-annotating phenotypes
+
+data=data%>%
+  mutate(newcondition=ifelse(data$condition %in% c("Autosomal Dominant ADD","Sporadic ADD"), "ADD", ifelse(data$condition %in% c("HCF/High ADNC","HCF/Low ADNC"), "HCF",NA)))
+
+covariate=data%>%
+  select(newcondition, region, PMI,sex,age)%>%
+  dplyr::rename(condition=newcondition)%>%
+  mutate(region=as.factor(region), condition=as.factor(condition), sex=as.factor(sex))
+
+newdata=data[,c(1:length(ccols)-1)]
+
+```
+
+# fitting outcome models
+
+```{r, fitting_outcomes}
+mask=which(newdata==0, arr.ind=TRUE)
+newdata[mask]<-NA
+raw.pep=newdata; vae.impute=newdata
+
+bregion=list("Caudate", "Hipp", "IPL", "SMTG")
+
+for(i in 1:length(bregion)){
+
+  raw.pep0=raw.pep[which(covariate$region==bregion[[i]]),]
+  covariate0=covariate[which(covariate$region==bregion[[i]]),]
+
+  batches_cate=matrix(c(covariate0$condition),ncol=1,byrow=F) 
+  batches_cont=matrix(c(covariate0$PMI),ncol=1,byrow=F) 
+  
+  vae.data <-raw.pep0; vae.data[is.na(vae.data)] <- 0.;
+  mask <- - as.matrix(is.na(as.matrix(raw.pep0)))
+  vae.impute0<-vae(vae.data,mask,batches_cate,batches_cont, NULL, dist_block=list('Gaussian'),
+                   c(dim(vae.data)[2]), num_epoch=300L, verbose=FALSE)[[1]]
+  
+  vae.impute[which(covariate$region==bregion[[i]]),]=vae.impute0
+}
+
+n=nrow(raw.pep); p=ncol(raw.pep)
+low.impute=matrix(0, n,p)
+
+for(i.p in 1:p){
+  lowmodel=lm(raw.pep[,i.p]~condition+region+PMI, data=covariate)
+  low.impute[,i.p]=as.vector(predict(lowmodel, newdata=covariate))
+}
+
+```
+# Constructing pseudo-outcomes
+
+```{r, constructing_pseudo_outcomes,warning=F}
+fitd=matrix(0,n,p)
+
+for(i.p in 1:p){
+  mask=1-is.na(raw.pep[,i.p])
+  logit=glm(mask~condition+region+PMI ,data=covariate, family = "binomial")
+  fitd[,i.p]<-logit$fitted.values
+}
+
+AG=(raw.pep-low.impute); AG[which(is.na(AG),arr.ind = T)]=0
+low.pep=low.impute+AG/fitd; 
+
+AG=(raw.pep-vae.impute); AG[which(is.na(AG),arr.ind = T)]=0
+DR.pep=vae.impute+AG/fitd; 
+```
+
+# Multiple testing procedure
+
+```{r, linear_regression}
+
+pval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugin=rep(0,p))
+tval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugin=rep(0,p))
+beta=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugin=rep(0,p))
+qval=data.frame(com=rep(0,p), DR_W=rep(0,p), DR_UW=rep(0,p), plugin=rep(0,p))
+
+for(i.p in 1:p){
+  
+  fit=lm(raw.pep[,i.p]~condition+region+PMI, data=covariate)
+  pval$com[i.p]=coef(summary(fit))[2,4] 
+  tval$com[i.p]=coef(summary(fit))[2,3] 
+  beta$com[i.p]=coef(summary(fit))[2,1] 
+  
+  
+  fit=lm(DR.pep[,i.p]~condition+region+PMI, data=covariate)
+  pval$DR_UW[i.p]=coef(summary(fit))[2,4] 
+  tval$DR_UW[i.p]=coef(summary(fit))[2,3] 
+  beta$DR_UW[i.p]=coef(summary(fit))[2,1] 
+  
+  fit=lm(low.pep[,i.p]~condition+region+PMI, data=covariate)
+  pval$DR_W[i.p]=coef(summary(fit))[2,4] 
+  tval$DR_W[i.p]=coef(summary(fit))[2,3] 
+  beta$DR_W[i.p]=coef(summary(fit))[2,1] 
+  
+  fit=lm(vae.impute[,i.p]~condition+region+PMI, data=covariate)
+  pval$plugin[i.p]=coef(summary(fit))[2,4] 
+  tval$plugin[i.p]=coef(summary(fit))[2,3] 
+  beta$plugin[i.p]=coef(summary(fit))[2,1] 
+}
+
+qval$com=p.adjust(pval$com, method = "BH")
+qval$DR_W=p.adjust(pval$DR_W, method = "BH")
+qval$DR_UW=p.adjust(pval$DR_UW, method = "BH")
+qval$plugin=p.adjust(pval$plugin, method = "BH")
+
+```
+
+
+# Number of discoveries
+
+```{r}
+qcut=0.05
+
+print(paste0("Complete :",length(which(qval$com<qcut)) ))
+print(paste0("DR_W :",length(which(qval$DR_W<qcut)) ))
+print(paste0("DR_UW :",length(which(qval$DR_UW<qcut)) ))
+print(paste0("Plugin :",length(which(qval$plugin<qcut)) ))
+```
+
+# Table 2 result
+
+```{r}
+colnames(raw.pep)[setdiff(which(qval$DR_UW<qcut),which(qval$com<qcut) )]
+
+```
+
+
+

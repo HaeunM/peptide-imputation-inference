@@ -1,0 +1,226 @@
+Batch,Sample Label,Condition,Age,Sex,Mutation Status,PMI (hrs),APOE Alleles,Cognitive Status,Study Name,Braak Stage,CERAD Score
+1,TZR01,Autosomal Dominant ADD,52,Female,PSEN1,NA,3_4,Dementia,UW ADRC,3,3
+1,TZR02,Sporadic ADD,90,Female,NA,3.85,3_3,Dementia,ACT,3,3
+1,TZR03,Sporadic ADD,61,Male,NA,3,4_4,Dementia,UW ADRC,3,3
+1,TZR04,Sporadic ADD,63,Male,NA,3.33,3_3,Dementia,UW ADRC,3,3
+1,TZR05,Sporadic ADD,77,Male,NA,5.92,3_3,Dementia,ACT,3,3
+1,TZR06,HCF/High ADNC,93,Male,NA,6.83,3_3,No dementia,ACT,3,2
+1,TZR07,Autosomal Dominant ADD,39,Female,PSEN1,25,NA,Dementia,DIAN,3,3
+1,TZR08,HCF/High ADNC,89,Female,NA,2.5,3_4,No dementia,ACT,3,3
+1,TZR09,Sporadic ADD,88,Male,NA,4.38,3_3,Dementia,UW ADRC,3,3
+1,TZR10,Autosomal Dominant ADD,44,Female,PSEN1,17.5,3_3,Dementia,UW ADRC,3,3
+1,TZR11,HCF/Low ADNC,91,Male,NA,5,3_3,No dementia,ACT,2,0
+1,TZR12,Autosomal Dominant ADD,78,Female,PSEN2,7,2_3,Dementia,UW ADRC,3,3
+1,TZR13,HCF/High ADNC,92,Male,NA,5.57,3_4,No dementia,ACT,3,3
+1,TZR14,HCF/Low ADNC,88,Female,NA,3.5,3_3,No dementia,ACT,2,0
+2,TZR15,Sporadic ADD,85,Female,NA,3.52,3_3,Dementia,UW ADRC,3,2
+2,TZR16,Autosomal Dominant ADD,45,Female,PSEN1,6,3_3,Dementia,UW ADRC,3,3
+2,TZR17,Sporadic ADD,62,Male,NA,3.92,3_4,Dementia,UW ADRC,3,3
+2,TZR18,Autosomal Dominant ADD,40,Male,PSEN1,15,NA,Dementia,DIAN,3,3
+2,TZR19,HCF/High ADNC,92,Female,NA,4.08,3_3,No dementia,ACT,2,3
+2,TZR20,HCF/High ADNC,87,Male,NA,4.5,3_3,No dementia,ACT,3,3
+2,TZR21,Sporadic ADD,86,Male,NA,2.67,3_4,Dementia,UW ADRC,3,3
+2,TZR22,Sporadic ADD,91,Female,NA,5.75,3_4,Dementia,UW ADRC,3,3
+2,TZR23,HCF/High ADNC,92,Female,NA,6,4_4,No dementia,ACT,2,2
+2,TZR24,Autosomal Dominant ADD,60,Male,PSEN2,20.5,3_3,Dementia,UW ADRC,3,3
+2,TZR25,HCF/Low ADNC,94,Female,NA,4.85,3_3,No dementia,ACT,2,0
+2,TZR26,HCF/Low ADNC,89,Male,NA,5,2_3,No dementia,ACT,1,0
+2,TZR27,Sporadic ADD,91,Male,NA,7,3_4,Dementia,ACT,3,2
+2,TZR28,Autosomal Dominant ADD,55,Male,PSEN2,3.98,3_4,Dementia,UW ADRC,3,3
+3,TZR29,HCF/High ADNC,86,Female,NA,6.5,3_4,No dementia,ACT,2,2
+3,TZR30,Sporadic ADD,59,Male,NA,5.08,3_4,Dementia,UW ADRC,3,3
+3,TZR31,Autosomal Dominant ADD,43,Male,PSEN1,20,NA,Dementia,DIAN,3,3
+3,TZR32,Autosomal Dominant ADD,45,Male,PSEN1,3.6,3_3,Dementia,UW ADRC,3,3
+3,TZR33,HCF/High ADNC,96,Female,NA,6.87,3_3,No dementia,ACT,2,3
+3,TZR34,HCF/Low ADNC,84,Male,NA,4.5,3_4,No dementia,ACT,1,0
+3,TZR35,Autosomal Dominant ADD,64,Male,PSEN2,19,3_3,Dementia,UW ADRC,3,2
+3,TZR36,HCF/Low ADNC,95,Female,NA,3.08,3_4,No dementia,ACT,2,0
+3,TZR37,Sporadic ADD,93,Female,NA,6.5,3_3,Dementia,ACT,3,3
+3,TZR38,HCF/High ADNC,89,Female,NA,5.08,3_3,No dementia,ACT,3,3
+3,TZR39,Autosomal Dominant ADD,54,Female,APP,6,4_4,Dementia,UW ADRC,3,3
+3,TZR40,Autosomal Dominant ADD,37,Male,PSEN1,7,3_3,Dementia,UW ADRC,3,3
+3,TZR41,Sporadic ADD,94,Male,NA,3.85,3_3,Dementia,ACT,3,3
+3,TZR42,Sporadic ADD,85,Male,NA,3.25,3_3,Dementia,UW ADRC,3,3
+4,TZR43,HCF/High ADNC,98,Male,NA,4,3_4,No dementia,ACT,3,2
+4,TZR44,Sporadic ADD,87,Female,NA,5.27,3_3,Dementia,UW ADRC,3,3
+4,TZR45,Autosomal Dominant ADD,39,Male,PSEN1,18,NA,Dementia,DIAN,3,3
+4,TZR46,HCF/Low ADNC,79,Female,NA,2.5,3_3,No dementia,ACT,1,0
+4,TZR47,Autosomal Dominant ADD,42,Male,PSEN1,24,3_3,Dementia,UW ADRC,3,3
+4,TZR48,Sporadic ADD,89,Female,NA,5.23,3_3,Dementia,ACT,3,2
+4,TZR49,Sporadic ADD,67,Female,NA,4.75,3_3,Dementia,UW ADRC,3,3
+4,TZR50,Autosomal Dominant ADD,49,Female,PSEN1,6.5,NA,Dementia,DIAN,3,3
+4,TZR51,Sporadic ADD,100,Male,NA,4.33,3_3,Dementia,ACT,3,3
+4,TZR52,Autosomal Dominant ADD,58,Male,PSEN1,24,2_3,Dementia,UW ADRC,3,3
+4,TZR53,HCF/Low ADNC,86,Male,NA,3.25,3_3,No dementia,ACT,2,0
+4,TZR54,Autosomal Dominant ADD,51,Female,PSEN1,24,2_3,Dementia,UW ADRC,3,3
+4,TZR55,Autosomal Dominant ADD,55,Male,PSEN2,24,3_4,Dementia,UW ADRC,3,3
+4,TZR56,HCF/High ADNC,79,Male,NA,2.5,3_3,No dementia,ACT,2,2
+5,TZR57,Autosomal Dominant ADD,72,Male,PSEN2,NA,3_4,Dementia,UW ADRC,3,3
+5,TZR58,Autosomal Dominant ADD,63,Male,PSEN1,8,3_3,Dementia,UW ADRC,3,3
+5,TZR59,Autosomal Dominant ADD,35,Female,PSEN1,41.8,NA,Dementia,DIAN,3,3
+5,TZR60,Autosomal Dominant ADD,61,Male,PSEN1,16,3_3,Dementia,UW ADRC,3,3
+5,TZR61,Autosomal Dominant ADD,51,Male,PSEN1,9,NA,Dementia,DIAN,3,3
+5,TZR62,HCF/Low ADNC,88,Female,NA,3.18,2_3,No dementia,ACT,1,0
+1,HZR01,Sporadic ADD,77,Male,NA,5.92,3_3,Dementia,ACT,3,3
+1,HZR02,Autosomal Dominant ADD,61,Male,PSEN1,16,3_3,Dementia,UW ADRC,3,3
+1,HZR03,HCF/High ADNC,98,Male,NA,4,3_4,No dementia,ACT,3,2
+1,HZR04,Autosomal Dominant ADD,45,Male,PSEN1,3.6,3_3,Dementia,UW ADRC,3,3
+1,HZR05,HCF/Low ADNC,84,Male,NA,4.5,3_4,No dementia,ACT,1,0
+1,HZR06,HCF/High ADNC,92,Male,NA,5.57,3_4,No dementia,ACT,3,3
+1,HZR07,Sporadic ADD,100,Male,NA,4.33,3_3,Dementia,ACT,3,3
+1,HZR08,HCF/Low ADNC,89,Male,NA,5,2_3,No dementia,ACT,1,0
+1,HZR09,Sporadic ADD,62,Male,NA,3.92,3_4,Dementia,UW ADRC,3,3
+1,HZR10,HCF/High ADNC,78,Male,NA,4,3_3,No dementia,ACT,2,2
+1,HZR11,HCF/High ADNC,96,Female,NA,6.87,3_3,No dementia,ACT,2,3
+1,HZR12,HCF/Low ADNC,88,Female,NA,3.18,2_3,No dementia,ACT,1,0
+1,HZR13,HCF/Low ADNC,88,Female,NA,3.5,3_3,No dementia,ACT,2,0
+1,HZR14,Sporadic ADD,89,Female,NA,5.23,3_3,Dementia,ACT,3,2
+2,HZR15,Sporadic ADD,63,Male,NA,3.33,3_3,Dementia,UW ADRC,3,3
+2,HZR16,HCF/High ADNC,89,Female,NA,2.5,3_4,No dementia,ACT,3,3
+2,HZR17,HCF/Low ADNC,95,Female,NA,3.08,3_4,No dementia,ACT,2,0
+2,HZR18,HCF/High ADNC,87,Male,NA,4.5,3_3,No dementia,ACT,3,3
+2,HZR19,HCF/High ADNC,93,Male,NA,6.83,3_3,No dementia,ACT,3,2
+2,HZR20,Sporadic ADD,59,Male,NA,5.08,3_4,Dementia,UW ADRC,3,3
+2,HZR21,HCF/Low ADNC,91,Male,NA,5,3_3,No dementia,ACT,2,0
+2,HZR22,Sporadic ADD,93,Female,NA,6.5,3_3,Dementia,ACT,3,3
+2,HZR23,Sporadic ADD,87,Female,NA,5.27,3_3,Dementia,UW ADRC,3,3
+2,HZR24,Sporadic ADD,76,Male,NA,3.92,3_4,Dementia,UW ADRC,3,3
+2,HZR25,Sporadic ADD,88,Male,NA,4.38,3_3,Dementia,UW ADRC,3,3
+2,HZR26,Sporadic ADD,85,Female,NA,3.52,3_3,Dementia,UW ADRC,3,2
+2,HZR27,HCF/Low ADNC,79,Female,NA,2.5,3_3,No dementia,ACT,1,0
+2,HZR28,HCF/High ADNC,86,Female,NA,6.5,3_4,No dementia,ACT,2,2
+3,HZR29,Sporadic ADD,86,Male,NA,2.67,3_4,Dementia,UW ADRC,3,3
+3,HZR30,Sporadic ADD,94,Male,NA,3.85,3_3,Dementia,ACT,3,3
+3,HZR31,Sporadic ADD,91,Female,NA,5.75,3_4,Dementia,UW ADRC,3,3
+3,HZR32,HCF/High ADNC,92,Female,NA,6,4_4,No dementia,ACT,2,2
+3,HZR33,Sporadic ADD,78,Female,NA,2.35,4_4,Dementia,UW ADRC,3,2
+3,HZR34,HCF/Low ADNC,73,Male,NA,4.5,3_3,No dementia,ACT,1,0
+3,HZR35,Sporadic ADD,67,Female,NA,4.75,3_3,Dementia,UW ADRC,3,3
+3,HZR36,Sporadic ADD,85,Male,NA,3.25,3_3,Dementia,UW ADRC,3,3
+3,HZR37,Sporadic ADD,90,Female,NA,3.85,3_3,Dementia,ACT,3,3
+3,HZR38,Autosomal Dominant ADD,54,Female,APP,6,4_4,Dementia,UW ADRC,3,3
+3,HZR39,HCF/High ADNC,89,Female,NA,5.08,3_3,No dementia,ACT,3,3
+3,HZR40,HCF/Low ADNC,94,Female,NA,4.85,3_3,No dementia,ACT,2,0
+3,HZR41,Sporadic ADD,91,Male,NA,7,3_4,Dementia,ACT,3,2
+3,HZR42,HCF/High ADNC,92,Female,NA,4.08,3_3,No dementia,ACT,2,3
+3,HZR43,Sporadic ADD,61,Male,NA,3,4_4,Dementia,UW ADRC,3,3
+3,HZR44,HCF/Low ADNC,86,Male,NA,3.25,3_3,No dementia,ACT,2,0
+1,PZR01,HCF/High ADNC,98,Male,NA,4,3_4,No dementia,ACT,3,2
+1,PZR02,Autosomal Dominant ADD,51,Female,PSEN1,24,2_3,Dementia,UW ADRC,3,3
+1,PZR03,HCF/Low ADNC,95,Female,NA,3.08,3_4,No dementia,ACT,2,0
+1,PZR04,Sporadic ADD,63,Male,NA,3.33,3_3,Dementia,UW ADRC,3,3
+1,PZR05,Sporadic ADD,87,Female,NA,5.27,3_3,Dementia,UW ADRC,3,3
+1,PZR06,Autosomal Dominant ADD,55,Male,PSEN2,3.98,3_4,Dementia,UW ADRC,3,3
+1,PZR07,Sporadic ADD,77,Male,NA,5.92,3_3,Dementia,ACT,3,3
+1,PZR08,Autosomal Dominant ADD,63,Male,PSEN1,8,3_3,Dementia,UW ADRC,3,3
+1,PZR09,Sporadic ADD,62,Male,NA,3.92,3_4,Dementia,UW ADRC,3,3
+1,PZR10,HCF/High ADNC,89,Female,NA,2.5,3_4,No dementia,ACT,3,3
+1,PZR11,Autosomal Dominant ADD,43,Male,PSEN1,20,NA,Dementia,DIAN,3,3
+1,PZR12,Sporadic ADD,61,Male,NA,3,4_4,Dementia,UW ADRC,3,3
+1,PZR13,HCF/Low ADNC,89,Male,NA,5,2_3,No dementia,ACT,1,0
+1,PZR14,HCF/High ADNC,92,Female,NA,4.08,3_3,No dementia,ACT,2,3
+2,PZR15,Sporadic ADD,67,Female,NA,4.75,3_3,Dementia,UW ADRC,3,3
+2,PZR16,HCF/High ADNC,89,Female,NA,5.08,3_3,No dementia,ACT,3,3
+2,PZR17,HCF/High ADNC,93,Male,NA,6.83,3_3,No dementia,ACT,3,2
+2,PZR18,Sporadic ADD,91,Female,NA,5.75,3_4,Dementia,UW ADRC,3,3
+2,PZR19,Sporadic ADD,59,Male,NA,5.08,3_4,Dementia,UW ADRC,3,3
+2,PZR20,HCF/Low ADNC,86,Male,NA,3.25,3_3,No dementia,ACT,2,0
+2,PZR21,Autosomal Dominant ADD,44,Female,PSEN1,17.5,3_3,Dementia,UW ADRC,3,3
+2,PZR22,HCF/High ADNC,92,Female,NA,6,4_4,No dementia,ACT,2,2
+2,PZR23,Autosomal Dominant ADD,35,Female,PSEN1,41.8,NA,Dementia,DIAN,3,3
+2,PZR24,Autosomal Dominant ADD,37,Male,PSEN1,7,3_3,Dementia,UW ADRC,3,3
+2,PZR25,Sporadic ADD,93,Female,NA,6.5,3_3,Dementia,ACT,3,3
+2,PZR26,HCF/Low ADNC,94,Female,NA,4.85,3_3,No dementia,ACT,2,0
+2,PZR27,Autosomal Dominant ADD,54,Female,APP,6,4_4,Dementia,UW ADRC,3,3
+2,PZR28,Autosomal Dominant ADD,45,Male,PSEN1,3.6,3_3,Dementia,UW ADRC,3,3
+3,PZR29,Sporadic ADD,91,Male,NA,7,3_4,Dementia,ACT,3,2
+3,PZR30,HCF/Low ADNC,88,Female,NA,3.18,2_3,No dementia,ACT,1,0
+3,PZR31,Sporadic ADD,85,Male,NA,3.25,3_3,Dementia,UW ADRC,3,3
+3,PZR32,Autosomal Dominant ADD,49,Female,PSEN1,6.5,NA,Dementia,DIAN,3,3
+3,PZR33,Autosomal Dominant ADD,55,Male,PSEN2,24,3_4,Dementia,UW ADRC,3,3
+3,PZR34,HCF/High ADNC,96,Female,NA,6.87,3_3,No dementia,ACT,2,3
+3,PZR35,Sporadic ADD,100,Male,NA,4.33,3_3,Dementia,ACT,3,3
+3,PZR36,HCF/Low ADNC,84,Male,NA,4.5,3_4,No dementia,ACT,1,0
+3,PZR37,HCF/High ADNC,92,Male,NA,5.57,3_4,No dementia,ACT,3,3
+3,PZR38,HCF/High ADNC,78,Male,NA,4,3_3,No dementia,ACT,2,2
+3,PZR39,Sporadic ADD,76,Male,NA,3.92,3_4,Dementia,UW ADRC,3,3
+3,PZR40,Autosomal Dominant ADD,45,Female,PSEN1,6,3_3,Dementia,UW ADRC,3,3
+3,PZR41,Autosomal Dominant ADD,60,Male,PSEN2,20.5,3_3,Dementia,UW ADRC,3,3
+3,PZR42,Sporadic ADD,78,Female,NA,2.35,4_4,Dementia,UW ADRC,3,2
+4,PZR43,Sporadic ADD,86,Male,NA,2.67,3_4,Dementia,UW ADRC,3,3
+4,PZR44,Sporadic ADD,94,Male,NA,3.85,3_3,Dementia,ACT,3,3
+4,PZR45,Autosomal Dominant ADD,39,Male,PSEN1,18,NA,Dementia,DIAN,3,3
+4,PZR46,HCF/Low ADNC,88,Female,NA,3.5,3_3,No dementia,ACT,2,0
+4,PZR47,Sporadic ADD,85,Female,NA,3.52,3_3,Dementia,UW ADRC,3,2
+4,PZR48,HCF/High ADNC,79,Male,NA,2.5,3_3,No dementia,ACT,2,2
+4,PZR49,HCF/High ADNC,86,Female,NA,6.5,3_4,No dementia,ACT,2,2
+4,PZR50,Autosomal Dominant ADD,51,Male,PSEN1,9,NA,Dementia,DIAN,3,3
+4,PZR51,HCF/High ADNC,87,Male,NA,4.5,3_3,No dementia,ACT,3,3
+4,PZR52,Autosomal Dominant ADD,52,Female,PSEN1,NA,3_4,Dementia,UW ADRC,3,3
+4,PZR53,Autosomal Dominant ADD,72,Male,PSEN2,NA,3_4,Dementia,UW ADRC,3,3
+4,PZR54,HCF/Low ADNC,91,Male,NA,5,3_3,No dementia,ACT,2,0
+4,PZR55,Autosomal Dominant ADD,61,Male,PSEN1,16,3_3,Dementia,UW ADRC,3,3
+4,PZR56,Sporadic ADD,89,Female,NA,5.23,3_3,Dementia,ACT,3,2
+5,PZR57,Autosomal Dominant ADD,64,Male,PSEN2,19,3_3,Dementia,UW ADRC,3,2
+5,PZR58,Autosomal Dominant ADD,39,Female,PSEN1,25,NA,Dementia,DIAN,3,3
+5,PZR59,Autosomal Dominant ADD,58,Male,PSEN1,24,2_3,Dementia,UW ADRC,3,3
+5,PZR60,Autosomal Dominant ADD,42,Male,PSEN1,24,3_3,Dementia,UW ADRC,3,3
+5,PZR61,Autosomal Dominant ADD,40,Male,PSEN1,15,NA,Dementia,DIAN,3,3
+1,CZR01,Sporadic ADD,94,Male,NA,3.85,3_3,Dementia,ACT,3,3
+1,CZR02,HCF/High ADNC,92,Male,NA,5.57,3_4,No dementia,ACT,3,3
+1,CZR03,HCF/High ADNC,87,Male,NA,4.5,3_3,No dementia,ACT,3,3
+1,CZR04,Autosomal Dominant ADD,61,Male,PSEN1,16,3_3,Dementia,UW ADRC,3,3
+1,CZR05,Autosomal Dominant ADD,39,Male,PSEN1,18,NA,Dementia,DIAN,3,3
+1,CZR06,Sporadic ADD,59,Male,NA,5.08,3_4,Dementia,UW ADRC,3,3
+1,CZR07,Autosomal Dominant ADD,54,Female,APP,6,4_4,Dementia,UW ADRC,3,3
+1,CZR08,HCF/Low ADNC,88,Female,NA,3.5,3_3,No dementia,ACT,2,0
+1,CZR09,Autosomal Dominant ADD,42,Male,PSEN1,24,3_3,Dementia,UW ADRC,3,3
+1,CZR10,Autosomal Dominant ADD,63,Male,PSEN1,8,3_3,Dementia,UW ADRC,3,3
+1,CZR11,Sporadic ADD,78,Female,NA,2.35,4_4,Dementia,UW ADRC,3,2
+1,CZR12,HCF/High ADNC,92,Female,NA,4.08,3_3,No dementia,ACT,2,3
+1,CZR13,Autosomal Dominant ADD,49,Female,PSEN1,6.5,NA,Dementia,DIAN,3,3
+1,CZR14,HCF/Low ADNC,78,Male,NA,4,2_3,No dementia,ACT,0,0
+2,CZR15,HCF/Low ADNC,88,Female,NA,3.18,2_3,No dementia,ACT,1,0
+2,CZR16,HCF/High ADNC,92,Female,NA,6,4_4,No dementia,ACT,2,2
+2,CZR17,Autosomal Dominant ADD,51,Male,PSEN1,9,NA,Dementia,DIAN,3,3
+2,CZR18,HCF/Low ADNC,89,Male,NA,5,2_3,No dementia,ACT,1,0
+2,CZR19,Sporadic ADD,91,Male,NA,7,3_4,Dementia,ACT,3,2
+2,CZR20,Autosomal Dominant ADD,60,Male,PSEN2,20.5,3_3,Dementia,UW ADRC,3,3
+2,CZR21,Sporadic ADD,91,Female,NA,5.75,3_4,Dementia,UW ADRC,3,3
+2,CZR22,Sporadic ADD,87,Female,NA,5.27,3_3,Dementia,UW ADRC,3,3
+2,CZR23,HCF/High ADNC,96,Female,NA,6.87,3_3,No dementia,ACT,2,3
+2,CZR24,Autosomal Dominant ADD,52,Female,PSEN1,NA,3_4,Dementia,UW ADRC,3,3
+2,CZR25,Sporadic ADD,85,Male,NA,3.25,3_3,Dementia,UW ADRC,3,3
+2,CZR26,Autosomal Dominant ADD,45,Male,PSEN1,3.6,3_3,Dementia,UW ADRC,3,3
+2,CZR27,Sporadic ADD,86,Male,NA,2.67,3_4,Dementia,UW ADRC,3,3
+2,CZR28,HCF/High ADNC,93,Male,NA,6.83,3_3,No dementia,ACT,3,2
+3,CZR29,Sporadic ADD,76,Male,NA,3.92,3_4,Dementia,UW ADRC,3,3
+3,CZR30,HCF/Low ADNC,95,Female,NA,3.08,3_4,No dementia,ACT,2,0
+3,CZR31,Sporadic ADD,67,Female,NA,4.75,3_3,Dementia,UW ADRC,3,3
+3,CZR32,Autosomal Dominant ADD,78,Female,PSEN2,7,2_3,Dementia,UW ADRC,3,3
+3,CZR33,Autosomal Dominant ADD,37,Male,PSEN1,7,3_3,Dementia,UW ADRC,3,3
+3,CZR34,HCF/High ADNC,86,Female,NA,6.5,3_4,No dementia,ACT,2,2
+3,CZR35,Sporadic ADD,77,Male,NA,5.92,3_3,Dementia,ACT,3,3
+3,CZR36,HCF/High ADNC,98,Male,NA,4,3_4,No dementia,ACT,3,2
+3,CZR37,Sporadic ADD,89,Female,NA,5.23,3_3,Dementia,ACT,3,2
+3,CZR38,Sporadic ADD,90,Female,NA,3.85,3_3,Dementia,ACT,3,3
+3,CZR39,HCF/Low ADNC,86,Male,NA,3.25,3_3,No dementia,ACT,2,0
+3,CZR40,Autosomal Dominant ADD,58,Male,PSEN1,24,2_3,Dementia,UW ADRC,3,3
+3,CZR41,HCF/High ADNC,89,Female,NA,5.08,3_3,No dementia,ACT,3,3
+3,CZR42,Autosomal Dominant ADD,39,Female,PSEN1,25,NA,Dementia,DIAN,3,3
+4,CZR43,Autosomal Dominant ADD,45,Female,PSEN1,6,3_3,Dementia,UW ADRC,3,3
+4,CZR44,HCF/High ADNC,79,Male,NA,2.5,3_3,No dementia,ACT,2,2
+4,CZR45,HCF/Low ADNC,79,Female,NA,2.5,3_3,No dementia,ACT,1,0
+4,CZR46,Autosomal Dominant ADD,55,Male,PSEN2,3.98,3_4,Dementia,UW ADRC,3,3
+4,CZR47,Sporadic ADD,63,Male,NA,3.33,3_3,Dementia,UW ADRC,3,3
+4,CZR48,HCF/Low ADNC,73,Male,NA,4.5,3_3,No dementia,ACT,1,0
+4,CZR49,Sporadic ADD,93,Female,NA,6.5,3_3,Dementia,ACT,3,3
+4,CZR50,HCF/Low ADNC,91,Male,NA,5,3_3,No dementia,ACT,2,0
+4,CZR51,Sporadic ADD,88,Male,NA,4.38,3_3,Dementia,UW ADRC,3,3
+4,CZR52,Autosomal Dominant ADD,43,Male,PSEN1,20,NA,Dementia,DIAN,3,3
+4,CZR53,Autosomal Dominant ADD,55,Male,PSEN2,24,3_4,Dementia,UW ADRC,3,3
+4,CZR54,Sporadic ADD,85,Female,NA,3.52,3_3,Dementia,UW ADRC,3,2
+4,CZR55,Autosomal Dominant ADD,64,Male,PSEN2,19,3_3,Dementia,UW ADRC,3,2
+4,CZR56,Autosomal Dominant ADD,35,Female,PSEN1,41.8,NA,Dementia,DIAN,3,3
+4,CZR57,Sporadic ADD,61,Male,NA,3,4_4,Dementia,UW ADRC,3,3
+4,CZR58,HCF/Low ADNC,84,Male,NA,4.5,3_4,No dementia,ACT,1,0
