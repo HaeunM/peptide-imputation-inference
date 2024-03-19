@@ -12,23 +12,34 @@ This pipeline can be applied to a custom dataset, provided that it conforms to t
 - `covariate`: A low-dimensional covariate without missing values. (A data frame #observations x #covariates)
 - `missing_pattern`: A missing pattern of `raw.pep`. Either `MAR` or `MCAR`.
 
-## VAEIT 
+## scVAEIT 
 
 The method involves regressing each column of `raw.pep` on both the `covariate` and the other peptides as the high-dimensional auxiliary variables. An addi-
 tional challenge is that each column of Y has many missing entries, even when used as a covariate in the regression problem. To address this, we use variational auto-encoder,
 a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression. Our pipeline uses an algorithm called `scVAEIT' that is designed for addressing the specific structures of single cell data. We use this algorithm both for single-cell and bulk-cell applications. 
 
-Here, we provide version 0.2.0 of `scVAEIT`, which were used for the analysis in the paper. For a general use, we recommend downloading the newest version of the code from the repository jaydu1/scVAEIT. We also provide an R wrapper function `R_wrapper_VAE.R`, written by Jin-Hong Du, to compile  `scVAEIT` in R. Both the folder `scVAEIT` and a file `R_wrapper_VAE.R` should be located in the same directory to make the pipeline code work.
+Here, we provide version 0.2.0 of `scVAEIT`, which were used for the analysis in the paper. For a general use, we recommend downloading the newest version of the code from the repository `jaydu1/scVAEIT. We also provide an R wrapper function `R_wrapper_VAE.R`, written by Jin-Hong Du, to compile  `scVAEIT` in R. Both the folder `scVAEIT` and a file `R_wrapper_VAE.R` should be located in the same directory to make the pipeline code work.
 
-The use of `scVAEIT` also requires setting up dependencies for python packages. Below are the versions that is compatible with the version 0.2.0. Terminal code written by Jin-Hong Du is provided for this setup (see `setup_dependency.txt`). 
+The algorithm `scVAEIT` also requires setting up the python packages dependencies. Below are the versions that is used for the analysis in the paper. 
 
-python                    3.8.12
-scanpy                    1.7.2
-scikit-learn              1.0.2
-tensorflow                2.4.1
-tensorflow-addons         0.13.0
-tensorflow-gpu            2.4.1
-tensorflow-probability    0.13.0 
+```cmd
+python                    3.9.18
+scanpy                    1.1.10 
+scikit-learn              1.3.2
+tensorflow                2.14.0
+tensorflow-probability    0.22.1
+```
+
+The dependencies can be installed via the following commands (written by Jin-Hong Du):
+
+```cmd
+mamba create --name tf python=3.9 -y
+conda activate tf
+mamba install -c conda-forge "tensorflow>=2.12" "tensorflow-probability>=0.12" pandas jupyter -y
+mamba install -c conda-forge "scanpy>=1.9.2" matplotlib scikit-learn -y
+```
+If you are using `conda`, simply replace `mamba` above by `conda`.
+
 
 ## Reproducibility materials
 
