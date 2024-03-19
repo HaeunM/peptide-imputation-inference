@@ -18,9 +18,9 @@ The method involves regressing each column of `raw.pep` on both the `covariate` 
 tional challenge is that each column of Y has many missing entries, even when used as a covariate in the regression problem. To address this, we use variational auto-encoder,
 a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression. Our pipeline uses an algorithm called `scVAEIT' that is designed for addressing the specific structures of single cell data. We use this algorithm both for single-cell and bulk-cell applications. 
 
-Here, we provide version 0.2.0 of `scVAEIT`, which were used for the analysis in the paper. For a general use, we recommend downloading the newest version of the code from the repository `jaydu1/scVAEIT`. We also provide an R wrapper function `R_wrapper_VAE.R`, written by Jin-Hong Du, to compile  `scVAEIT` in R. Both the folder `scVAEIT` and a file `R_wrapper_VAE.R` should be located in the same directory to make the pipeline code work.
+Here, we provide version 0.2.0 of `scVAEIT`, which were used for the analysis in the paper. For a general use, we recommend downloading the newest version of the code from the repository `jaydu1/scVAEIT`. We also provide an R wrapper function `R_wrapper_VAE.R`, written by Jin-Hong Du, to compile  `scVAEIT` in R. Both the folder `scVAEIT` and a file `R_wrapper_VAE.R` should be located in the same directory with a pipeline code to make the code work.
 
-The algorithm `scVAEIT` also requires setting up the python packages dependencies. Below are the versions that is used for the analysis in the paper. 
+The `scVAEIT` requires setting up the python packages dependencies. Below are the versions that is used for the analysis in the paper. 
 
 ```cmd
 python                    3.9.18
