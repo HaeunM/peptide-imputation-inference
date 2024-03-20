@@ -14,7 +14,7 @@ This pipeline can be applied to a custom dataset, provided that it conforms to t
 
 ## scVAEIT 
 
-The method involves regressing each column of `raw.pep` on both the `covariate` and the other columns of `raw.pep`. Each column of Y has many missing entries, even when used as a covariate in the regression problem. We use an algorithm called `scVAEIT', a variant of variational auto-encoder, which is a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression ([Du et al. (2022)](#references)). 
+The method involves regressing each column of `raw.pep` on both the `covariate` and the other columns of `raw.pep`. Columns of `raw.pep` has many missing entries, even when used as a covariate in the regression problem. We use an algorithm called `scVAEIT', a variant of variational auto-encoder, which is a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression ([Du et al. (2022)](#references)). 
 
 Here, we provide version 0.2.0 of `scVAEIT`, which is the version used for the analysis in the paper [Moon et al. (2024)](#references). For general use, we recommend downloading the newest version of the code from the repository [jaydu1/scVAEIT](https://github.com/jaydu1/scVAEIT). We also provide an R wrapper function, `R_wrapper_VAE.R`, to compile `scVAEIT` in R. <b>Both the folder `scVAEIT` and the file `R_wrapper_VAE.R` should be located in the same directory with a pipeline code.</b>
 
@@ -47,7 +47,7 @@ The `scpdata` folder contains codes for reproducing the result in Section 4. The
 
 The `ADdata` folder contains codes and data for reproducing the result in Section 5. The data used for this analysis is the bulk-cell brain data related to Alzheimer's Disease. The file `meta.csv` was downloaded from [url](https://panoramaweb.org/Panorama%20Public/2022/MacCoss%20-%20Human%20AD%20Clean%20Diagnosis%20DIA%20Data/SMTG/wiki-page.view?name=SMTG%20Metadata). Four other files for peptide data on each brain region can be downloaded from [url](https://panoramaweb.org/Panorama%20Public/2022/MacCoss%20-%20Human%20AD%20Clean%20Diagnosis%20DIA%20Data/project-begin.view) with a selection of Level3A.
 
-For running the codes, both 'scVAEIT' and 'R_wrapper_VAE.R' should be located in the same directory.
+For running the codes, both the folder `scVAEIT` and the file `R_wrapper_VAE.R` should be located in the same directory.
 
 ## References
 
