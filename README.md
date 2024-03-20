@@ -1,6 +1,6 @@
 # peptide-imputation-inference
 
-This repository contains codes associated with the paper [AUGMENTED DOUBLY ROBUST POST-IMPUTATION INFERENCE FOR PROTEOMIC DATA] by Moon et al. (2024). 
+This repository contains codes associated with the paper [Augmented Doubly Robust Post-Imputation Inference for Proteomic Data] by Moon et al. (2024). 
 
 ## General pipeline
 
