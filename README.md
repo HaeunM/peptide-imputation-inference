@@ -1,6 +1,6 @@
 # peptide-imputation-inference
 
-This repository contains codes associated with the paper [Augmented Doubly Robust Post-Imputation Inference for Proteomic Data] by Moon et al. (2024). 
+This repository contains codes associated with the paper [Augmented Doubly Robust Post-Imputation Inference for Proteomic Data] by [Moon et al. (2024)](#references). 
 
 ## General pipeline
 
@@ -16,7 +16,7 @@ This pipeline can be applied to a custom dataset, provided that it conforms to t
 
 The method involves regressing each column of `raw.pep` on both the `covariate` and the other columns of `raw.pep`. Columns of `raw.pep` has many missing entries, even when used as a covariate in the regression problem. We use an algorithm called `scVAEIT', a variant of variational auto-encoder, which is a deep neural network tool that allows for flexible input and simultaneous estimation of the multi-response regression ([Du et al. (2022)](#references)). 
 
-Here, we provide version 0.2.0 of `scVAEIT`, which is the version used for the analysis in the paper [Moon et al. (2024)](#references). For general use, we recommend downloading the newest version of the code from the repository [jaydu1/scVAEIT](https://github.com/jaydu1/scVAEIT). We also provide an R wrapper function, `R_wrapper_VAE.R`, to compile `scVAEIT` in R. <b>Both the folder `scVAEIT` and the file `R_wrapper_VAE.R` should be located in the same directory with a pipeline code.</b>
+Here, we provide version 0.2.0 of `scVAEIT`, which is the version used for the analysis in the paper by [Moon et al. (2024)](#references). For general use, we recommend downloading the newest version of the code from the repository [jaydu1/scVAEIT](https://github.com/jaydu1/scVAEIT). We also provide an R wrapper function, `R_wrapper_VAE.R`, to compile `scVAEIT` in R. <b>Both the folder `scVAEIT` and the file `R_wrapper_VAE.R` should be located in the same directory with a pipeline code.</b>
 
 The `scVAEIT` requires setting up the Python package dependencies. Below are the versions that are used for the analysis in the paper. 
 
