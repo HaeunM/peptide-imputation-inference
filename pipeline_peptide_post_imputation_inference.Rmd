@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, cache= FALSE)
 
 This notebook illustrate how to perform a post-imputation inference of proteomic data with missing values on example dataset. By replacing the example dataset with the dataset of your choice, you can draw an inference on least square coefficients on your own data.
 
-For more information and details on the theoretical background of the methodology, we refer to the paper [[@mayer2020]](http://dx.doi.org/10.1214/20-AOAS1356).
+For more information and details on the theoretical background of the methodology, we refer to the paper [[@moon2025]](https://projecteuclid.org/journals/annals-of-applied-statistics/volume-19/issue-2/Augmented-doubly-robust-post-imputation-inference-for-proteomic-data/10.1214/25-AOAS2012.full?tab=ArticleLink).
 
 **You can replace the chunk `rename_data` with any data set you wish to analyze. 
 For this, you have to specify:**
