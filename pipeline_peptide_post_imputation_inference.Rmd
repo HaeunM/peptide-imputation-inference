@@ -3,21 +3,6 @@ title:  "Pipeline for least square post-imputation inference for proteomic data"
 author: "Haeun Moon"
 output: html_document
 date: "2024-03-15"
-#references:
-#-id: benjamini1995controlling
-# title: Controlling the 'false' discovery rate: a practical and powerful approach to multiple testing
-#   author:
-#    - family: Benjamini
-#     given: Yoav
-#    - family: Hochberg
-#    given: Yosef
-#  container-title: Journal of the Royal statistical society: series B (Methodological)
-#  volume: 57
-#  number: 1
-#  page: 289--300
-#  issued:
-#    year:1995
-#  publisher: Wiley Online Library
 ---
 
 ```{r setup, include=FALSE}
