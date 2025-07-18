@@ -148,7 +148,7 @@ if(missing_pattern=="MAR"){
     fit=lm(DR.pep[,i.p]~., data=covariate)
     beta$DR_UW[i.p]=coef(summary(fit))[2,1] 
     tval$DR_UW[i.p]=beta$DR_UW[i.p]/sqrt(vcovHC(fit)[2,2])
-    pval$DR_UW[i.p]=2*pt(abs(tval$DR_UW[i.p]), n-1, lower.tail=FALSE) 
+    pval$DR_UW[i.p]=2*pt(abs(tval$DR_UW[i.p]), n-p, lower.tail=FALSE) 
     
     fit=lm(vae.impute[,i.p]~., data=covariate)
     pval$plugin[i.p]=coef(summary(fit))[2,4] 
